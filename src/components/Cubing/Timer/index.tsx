@@ -52,7 +52,7 @@ const Timer: React.FC<TimerProps> = ({
         pause();
         setTimerStatus("PAUSED");
       }
-      
+
       if (e.key === "r") {
         reset();
         setTimerStatus("STOPPED");
@@ -99,7 +99,7 @@ const Timer: React.FC<TimerProps> = ({
       <div
         id="mat-time"
         className={cn(
-          "font-sans",
+          "font-sans text-center",
           timerStatus === "HOLDING" ? "text-red-500" : "",
           timerStatus === "READY" ? "text-green-500" : "",
         )}

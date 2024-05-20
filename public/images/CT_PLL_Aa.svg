@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #000;
+      }
+
+      .cls-1, .cls-2, .cls-3, .cls-4, .cls-5, .cls-6 {
+        stroke-width: 0px;
+      }
+
+      .cls-2 {
+        fill: blue;
+      }
+
+      .cls-3 {
+        fill: #ff0;
+      }
+
+      .cls-7 {
+        fill: none;
+        stroke: #000;
+        stroke-linecap: round;
+        stroke-miterlimit: 10;
+        stroke-width: 4px;
+      }
+
+      .cls-4 {
+        fill: red;
+      }
+
+      .cls-5 {
+        fill: lime;
+      }
+
+      .cls-6 {
+        fill: #e8751e;
+      }
+    </style>
+  </defs>
+  <g id="Layer_1" data-name="Layer 1">
+    <rect class="cls-2" x="189.11" y="16.74" width="7.89" height="51.89" rx="3" ry="3"/>
+    <rect class="cls-4" x="189.11" y="73.74" width="7.89" height="51.89" rx="3" ry="3"/>
+    <rect class="cls-6" x="189.11" y="131.74" width="7.89" height="51.89" rx="3" ry="3"/>
+    <rect class="cls-6" x="3.11" y="131.74" width="7.89" height="51.89" rx="3" ry="3"/>
+    <rect class="cls-6" x="3.11" y="73.74" width="7.89" height="51.89" rx="3" ry="3"/>
+    <rect class="cls-5" x="3.11" y="16.74" width="7.89" height="51.89" rx="3" ry="3"/>
+    <rect class="cls-4" x="15.11" y="5.74" width="51.89" height="7.89" rx="3" ry="3"/>
+    <rect class="cls-5" x="74.11" y="5.74" width="51.89" height="7.89" rx="3" ry="3"/>
+    <rect class="cls-4" x="133.11" y="5.74" width="51.89" height="7.89" rx="3" ry="3"/>
+    <rect class="cls-5" x="133.11" y="185.74" width="51.89" height="7.89" rx="3" ry="3"/>
+    <rect class="cls-2" x="74.11" y="185.74" width="51.89" height="7.89" rx="3" ry="3"/>
+    <rect class="cls-2" x="15.11" y="185.74" width="51.89" height="7.89" rx="3" ry="3"/>
+    <g id="Top_Yellow" data-name="Top Yellow">
+      <rect class="cls-3" x="15" y="16.74" width="51.89" height="51.89" rx="4.78" ry="4.78"/>
+      <rect class="cls-3" x="74.05" y="16.74" width="51.89" height="51.89" rx="4.78" ry="4.78"/>
+      <rect class="cls-3" x="133.11" y="16.74" width="51.89" height="51.89" rx="4.78" ry="4.78"/>
+      <rect class="cls-3" x="133.11" y="74" width="51.89" height="51.89" rx="4.78" ry="4.78"/>
+      <rect class="cls-3" x="133.11" y="131.26" width="51.89" height="51.89" rx="4.78" ry="4.78"/>
+      <rect class="cls-3" x="74.05" y="131.26" width="51.89" height="51.89" rx="4.78" ry="4.78"/>
+      <rect class="cls-3" x="74.05" y="74" width="51.89" height="51.89" rx="4.78" ry="4.78"/>
+      <rect class="cls-3" x="15" y="74" width="51.89" height="51.89" rx="4.78" ry="4.78"/>
+      <rect class="cls-3" x="15" y="131.26" width="51.89" height="51.89" rx="4.78" ry="4.78"/>
+    </g>
+  </g>
+  <g id="Layer_2" data-name="Layer 2">
+    <g>
+      <g>
+        <line class="cls-7" x1="49" y1="43" x2="146.39" y2="43"/>
+        <polygon class="cls-1" points="144.64 48.98 155 43 144.64 37.02 144.64 48.98"/>
+      </g>
+      <g>
+        <line class="cls-7" x1="159" y1="48" x2="159" y2="142.39"/>
+        <polygon class="cls-1" points="153.02 140.64 159 151 164.98 140.64 153.02 140.64"/>
+      </g>
+      <g>
+        <line class="cls-7" x1="151" y1="154" x2="54.09" y2="57.09"/>
+        <polygon class="cls-1" points="59.56 54.1 48 51 51.1 62.56 59.56 54.1"/>
+      </g>
+    </g>
+  </g>
+</svg>
