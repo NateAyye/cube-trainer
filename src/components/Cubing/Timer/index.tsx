@@ -8,7 +8,7 @@ import { cn } from "~/lib/utils";
 const DEFAULT_SCRAMBLE = "R U R' U'";
 const DEFAULT_TIME = 0;
 
-type TimerStatus = "RUNNING" | "READY" | "HOLDING" | "PAUSED" | "STOPPED";
+type TimerStatus = "RUNNING" | "READY" | "HOLDING" | "STOPPED";
 
 interface TimerProps {
   scramble?: string;
@@ -31,34 +31,31 @@ const Timer: React.FC<TimerProps> = ({
   const [scrambleText, setScrambleText] = React.useState(scramble);
 
   const handleStart = useCallback(() => {
-    if (timerId.current) clearInterval(timerId.current);
+    if (timerId.current) clearTimeout(timerId.current);
+    setTimerStatus(() => "HOLDING");
     reset();
-    timerId.current = setTimeout(() => setTimerStatus("READY"), 1000);
+    timerId.current = setTimeout(() => setTimerStatus(() => "READY"), 1000);
   }, [reset]);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === " ") {
-        if (timerStatus !== "HOLDING" && timerStatus !== "READY") {
-          setTimerStatus("HOLDING");
-          if (timerStatus === "STOPPED" || timerStatus === "PAUSED") {
-            handleStart();
-          }
-        }
-      }
-
+      if (timerStatus === "HOLDING") return;
       if (timerStatus === "RUNNING") {
         e.preventDefault();
         pause();
-        setTimerStatus("PAUSED");
+        setTimerStatus(() => "STOPPED");
+        return;
       }
 
-      if (e.key === "r") {
-        reset();
-        setTimerStatus("STOPPED");
+      // Check if the space key is pressed
+      if (e.key === " " && timerStatus === "STOPPED") {
+        if (timerId.current) clearTimeout(timerId.current);
+        handleStart();
+        return;
       }
+      console.log("key down", e.key, timerStatus);
     },
-    [handleStart, timerStatus, pause, reset],
+    [handleStart, timerStatus, pause],
   );
 
   const handleKeyUp = useCallback(
@@ -67,17 +64,42 @@ const Timer: React.FC<TimerProps> = ({
       if (e.key === " ") {
         if (timerStatus === "READY") {
           play();
-          setTimerStatus("RUNNING");
+          setTimerStatus(() => "RUNNING");
         }
         if (timerStatus === "HOLDING") {
-          setTimerStatus("STOPPED");
+          setTimerStatus(() => "STOPPED");
         }
       }
     },
     [play, timerStatus],
   );
 
+  const handleTouchStart = useCallback(
+    (e: TouchEvent) => {
+      if (timerId.current) clearTimeout(timerId.current);
+      setTimerStatus(() => "HOLDING");
+      reset();
+      timerId.current = setTimeout(() => setTimerStatus(() => "READY"), 1000);
+    },
+    [reset],
+  );
+
+  const handleTouchEnd = useCallback((e: TouchEvent) => {
+    if (timerId.current) clearTimeout(timerId.current);
+    if (timerStatus === "READY") {
+      play();
+      setTimerStatus(() => "RUNNING");
+      return;
+    }
+    if (timerStatus === "HOLDING") {
+      setTimerStatus(() => "STOPPED");
+      return;
+    }
+  }, [ play, timerStatus]);
+
   useEffect(() => {
+    document.addEventListener("touchstart", handleTouchStart, false);
+    document.addEventListener("touchend", handleTouchEnd, false);
     document.addEventListener("keydown", handleKeyDown);
     document.addEventListener("keyup", handleKeyUp);
 
@@ -92,20 +114,20 @@ const Timer: React.FC<TimerProps> = ({
       <div
         ref={scrambleRef}
         contentEditable={editScramble}
-        className=" text-muted2 px-5 text-center"
+        className=" px-5 text-center text-muted2"
       >
         {scrambleText}
       </div>
       <div
         id="mat-time"
         className={cn(
-          "font-sans text-center",
+          "text-center font-sans",
           timerStatus === "HOLDING" ? "text-red-500" : "",
           timerStatus === "READY" ? "text-green-500" : "",
         )}
       >
-        {hours > 0 ? <span>{hours}:</span> : <></>}
-        {minutes > 0 ? <span>{minutes}:</span> : <></>}
+        {hours > 0 ? <span className="text-8xl">{hours}:</span> : <></>}
+        {minutes > 0 ? <span className="text-8xl">{minutes}:</span> : <></>}
         <span className="text-8xl">{seconds}</span>
         <span className="text-7xl">.</span>
         <span className="text-6xl">

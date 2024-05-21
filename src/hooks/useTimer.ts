@@ -40,8 +40,10 @@ export const useTimer = (startTime?: number) => {
   }, [setBaseTime]);
 
   const pause = useCallback(() => {
+    console.log("pause");
+
     setStatus("OFF");
-    clearInterval(timerId.current);
+    if (timerId.current) clearInterval(timerId.current);
   }, []);
 
   const reset = useCallback(() => {
