@@ -34,7 +34,7 @@ const Timer: React.FC<TimerProps> = ({
     if (timerId.current) clearTimeout(timerId.current);
     setTimerStatus(() => "HOLDING");
     reset();
-    timerId.current = setTimeout(() => setTimerStatus(() => "READY"), 1000);
+    timerId.current = setTimeout(() => setTimerStatus(() => "READY"), 500);
   }, [reset]);
 
   const handleKeyDown = useCallback(
@@ -76,8 +76,8 @@ const Timer: React.FC<TimerProps> = ({
 
   const handleTouchStart = useCallback(
     (e: TouchEvent) => {
-
-      if (e.target!.id !== "cube-mat") return;
+      if (!e.target) return;
+      if ((e.target as HTMLElement).id !== "cube-mat") return;
 
       if (timerId.current) clearTimeout(timerId.current);
 
@@ -95,21 +95,18 @@ const Timer: React.FC<TimerProps> = ({
     [reset, pause, timerStatus, handleStart],
   );
 
-  const handleTouchEnd = useCallback(
-    (e: TouchEvent) => {
-      if (timerId.current) clearTimeout(timerId.current);
-      if (timerStatus === "READY") {
-        play();
-        setTimerStatus(() => "RUNNING");
-        return;
-      }
-      if (timerStatus === "HOLDING") {
-        setTimerStatus(() => "STOPPED");
-        return;
-      }
-    },
-    [play, timerStatus],
-  );
+  const handleTouchEnd = useCallback(() => {
+    if (timerId.current) clearTimeout(timerId.current);
+    if (timerStatus === "READY") {
+      play();
+      setTimerStatus(() => "RUNNING");
+      return;
+    }
+    if (timerStatus === "HOLDING") {
+      setTimerStatus(() => "STOPPED");
+      return;
+    }
+  }, [play, timerStatus]);
 
   useEffect(() => {
     document.addEventListener("touchstart", handleTouchStart, false);
@@ -136,7 +133,7 @@ const Timer: React.FC<TimerProps> = ({
           }
         }}
         className={cn(
-          " px-5 text-center text-muted2 rounded",
+          " rounded px-5 text-center text-muted2",
           editScramble ? "border-2 border-yellow-500" : "",
         )}
       >

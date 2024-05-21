@@ -17,26 +17,26 @@ const SidebarLink: React.FC<SidebarLinkProps> = ({
 }) => {
   const pathname = usePathname();
   return (
-    <Link href={href} className="flex items-center gap-3">
-                  <Icon
-                    className={cn(
-                      "h-6 w-6 m-0 sm:m-auto lg:m-0",
-                      href === pathname
-                        ? "stroke-primary-foreground"
-                        : "stroke-muted-foreground",
-                    )}
-                  />
-                  <span
-                    className={cn(
-                      "font-degular font-[500] leading-4 sm:hidden lg:block",
-                      href === pathname
-                        ? "text-primary-foreground"
-                        : "text-muted-foreground",
-                    )}
-                  >
-                    {label}
-                  </span>
-                </Link>
+    <Link href={href} className="flex items-center justify-start gap-3">
+      <Icon
+        className={cn(
+          "m-0 h-7 w-7 sm:m-auto lg:m-0",
+          href === pathname
+            ? "stroke-primary-foreground"
+            : "stroke-muted-foreground",
+        )}
+      />
+      <span
+        className={cn(
+          "font-degular text-2xl font-[500] leading-4 sm:hidden lg:block",
+          href === pathname
+            ? "text-primary-foreground"
+            : "text-muted-foreground",
+        )}
+      >
+        {label}
+      </span>
+    </Link>
   );
 };
 
