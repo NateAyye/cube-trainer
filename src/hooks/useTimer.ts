@@ -24,7 +24,7 @@ export const useTimer = (startTime?: number) => {
 
   const play = useCallback(() => {
     if (timerId.current) clearInterval(timerId.current);
-    setStatus("ON");
+    setStatus(() => "ON");
     timerId.current = setInterval(() => {
       setBaseTime((time) => {
         const hours = Math.floor(time / 360000);
@@ -37,20 +37,18 @@ export const useTimer = (startTime?: number) => {
     }, 10);
 
     return () => clearInterval(timerId.current);
-  }, [setBaseTime]);
+  }, [setBaseTime, setFormattedTime]);
 
   const pause = useCallback(() => {
-    console.log("pause");
-
-    setStatus("OFF");
+    setStatus(() => "OFF");
     if (timerId.current) clearInterval(timerId.current);
   }, []);
 
   const reset = useCallback(() => {
-    setStatus("OFF");
+    if (timerId.current) clearInterval(timerId.current);
+    setStatus(() => "OFF");
     setBaseTime(0);
     setFormattedTime({ hours: 0, minutes: 0, seconds: 0, miliseconds: 0 });
-    if (timerId.current) clearInterval(timerId.current);
   }, []);
 
   return { ...formattedTime, baseTime, play, pause, reset, status };

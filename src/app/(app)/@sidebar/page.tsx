@@ -67,12 +67,12 @@ export default function SideBar() {
             src="/logo_white.svg"
             alt="CubeDesk"
             width={40}
-            height={40}
+            height={42}
             className="block lg:hidden"
           />
           <div className="flex items-center justify-center gap-2 sm:flex-col lg:flex-row">
-            <Bell className="stroke-background h-4 w-4" />
-            <User2Icon className="stroke-background h-8 w-8 rounded-full border-2" />
+            <Bell className="h-4 w-4 stroke-background" />
+            <User2Icon className="h-8 w-8 rounded-full border-2 stroke-background" />
           </div>
         </div>
         <nav>

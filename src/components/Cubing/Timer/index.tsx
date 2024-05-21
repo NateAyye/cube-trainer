@@ -76,26 +76,40 @@ const Timer: React.FC<TimerProps> = ({
 
   const handleTouchStart = useCallback(
     (e: TouchEvent) => {
+
+      if (e.target!.id !== "cube-mat") return;
+
       if (timerId.current) clearTimeout(timerId.current);
-      setTimerStatus(() => "HOLDING");
-      reset();
-      timerId.current = setTimeout(() => setTimerStatus(() => "READY"), 1000);
+
+      if (timerStatus === "RUNNING") {
+        pause();
+        setTimerStatus(() => "STOPPED");
+        return;
+      } else if (timerStatus === "STOPPED") {
+        setTimerStatus(() => "HOLDING");
+        reset();
+        handleStart();
+        return;
+      }
     },
-    [reset],
+    [reset, pause, timerStatus, handleStart],
   );
 
-  const handleTouchEnd = useCallback((e: TouchEvent) => {
-    if (timerId.current) clearTimeout(timerId.current);
-    if (timerStatus === "READY") {
-      play();
-      setTimerStatus(() => "RUNNING");
-      return;
-    }
-    if (timerStatus === "HOLDING") {
-      setTimerStatus(() => "STOPPED");
-      return;
-    }
-  }, [ play, timerStatus]);
+  const handleTouchEnd = useCallback(
+    (e: TouchEvent) => {
+      if (timerId.current) clearTimeout(timerId.current);
+      if (timerStatus === "READY") {
+        play();
+        setTimerStatus(() => "RUNNING");
+        return;
+      }
+      if (timerStatus === "HOLDING") {
+        setTimerStatus(() => "STOPPED");
+        return;
+      }
+    },
+    [play, timerStatus],
+  );
 
   useEffect(() => {
     document.addEventListener("touchstart", handleTouchStart, false);
@@ -104,6 +118,8 @@ const Timer: React.FC<TimerProps> = ({
     document.addEventListener("keyup", handleKeyUp);
 
     return () => {
+      document.removeEventListener("touchstart", handleTouchStart);
+      document.removeEventListener("touchend", handleTouchEnd);
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("keyup", handleKeyUp);
     };
@@ -114,7 +130,15 @@ const Timer: React.FC<TimerProps> = ({
       <div
         ref={scrambleRef}
         contentEditable={editScramble}
-        className=" px-5 text-center text-muted2"
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+          }
+        }}
+        className={cn(
+          " px-5 text-center text-muted2 rounded",
+          editScramble ? "border-2 border-yellow-500" : "",
+        )}
       >
         {scrambleText}
       </div>
@@ -140,7 +164,7 @@ const Timer: React.FC<TimerProps> = ({
       >
         <Button
           className={cn(
-            "h-7 w-7 p-0",
+            "toolbar-button  h-7 w-7 p-0",
             editScramble ? "bg-accent text-accent-foreground" : "",
           )}
           variant={"ghost"}
@@ -158,7 +182,7 @@ const Timer: React.FC<TimerProps> = ({
         </Button>
         <Button
           className={cn(
-            "h-7 w-7 p-0 ",
+            "toolbar-button h-7 w-7 p-0 ",
             scramleIsLocked ? "bg-accent text-accent-foreground" : "",
           )}
           variant={"ghost"}
@@ -169,7 +193,7 @@ const Timer: React.FC<TimerProps> = ({
           <Lock className="h-4 w-4" />
         </Button>
         <Button
-          className="h-7 w-7 p-0"
+          className="toolbar-button h-7 w-7 p-0"
           variant={"ghost"}
           onClick={() => {
             // Copy to clipboard
@@ -186,7 +210,7 @@ const Timer: React.FC<TimerProps> = ({
           <Copy className="h-4 w-4" />
         </Button>
         <Button
-          className="h-7 w-7 p-0"
+          className="toolbar-button h-7 w-7 p-0"
           variant={"ghost"}
           onClick={() => {
             // TODO: Generate new scramble
