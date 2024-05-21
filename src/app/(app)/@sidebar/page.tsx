@@ -41,7 +41,7 @@ export default function SideBar() {
       </Button>
       <aside
         className={cn(
-          "absolute h-screen bg-[#0e0f18] px-3 transition-all sm:relative",
+          "absolute min-h-dvh bg-[#0e0f18] px-3 transition-all sm:relative",
           active ? "left-0" : " -left-full sm:left-0",
         )}
       >
