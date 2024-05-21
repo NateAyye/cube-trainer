@@ -23,11 +23,11 @@ export default function RootLayout({
     <html
       lang="en"
       className={cn(
-        "bg-background min-h-screen font-sans antialiased",
+        "min-h-dvh bg-background font-sans antialiased",
         fontSans.variable,
       )}
     >
-      <body className="flex min-h-screen relative bg-[#12141c]">{children}</body>
+      <body className="relative flex min-h-dvh bg-[#12141c]">{children}</body>
     </html>
   );
 }
