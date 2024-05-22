@@ -4,12 +4,14 @@ import * as React from "react";
 import { ChevronUp } from "lucide-react";
 import { Drawer, DrawerContent, DrawerTrigger } from "~/components/ui/drawer";
 import { useMediaQuery } from "~/hooks/use-media-query";
+import { useAppSelector } from "~/store/hooks";
 import ToolsContainer from "../InterchangableToolContainer";
 import ScrambleDisplay from "../ScrambleDisplay";
 import SessionTimes from "../Session";
 
-export function ToolsDrawer({ scramble }: { scramble: string }) {
+export function ToolsDrawer({}) {
   const [open, setOpen] = React.useState(false);
+  const scramble = useAppSelector((state) => state.scramble.scramble);
   const isTablet = useMediaQuery("(min-width: 640px)");
   const isDesktop = useMediaQuery("(min-width: 1024px)");
 

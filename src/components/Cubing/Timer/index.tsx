@@ -3,24 +3,25 @@ import { Copy, Edit, Lock, RotateCw } from "lucide-react";
 import React, { useCallback, useEffect } from "react";
 import { Button } from "~/components/ui/button";
 import { useTimer } from "~/hooks/useTimer";
-import { cn, getNewScramble } from "~/lib/utils";
+import { cn } from "~/lib/utils";
+import {
+  generateScramble,
+  setScramble,
+} from "~/store/features/scramble/scrambleSlice";
+import { useAppDispatch, useAppSelector } from "~/store/hooks";
 
-const DEFAULT_SCRAMBLE = "R U R' U'";
 const DEFAULT_TIME = 0;
 
 type TimerStatus = "RUNNING" | "READY" | "HOLDING" | "STOPPED";
 
 interface TimerProps {
-  scramble?: string;
   time?: number;
-  setScramble: (scramble: string) => void;
 }
 
-const Timer: React.FC<TimerProps> = ({
-  scramble = DEFAULT_SCRAMBLE,
-  time = DEFAULT_TIME,
-  setScramble,
-}) => {
+const Timer: React.FC<TimerProps> = ({ time = DEFAULT_TIME }) => {
+  const scrambleState = useAppSelector((state) => state.scramble.scramble);
+  const dispatch = useAppDispatch();
+
   const { hours, minutes, seconds, miliseconds, play, pause, reset } =
     useTimer(time);
 
@@ -30,7 +31,6 @@ const Timer: React.FC<TimerProps> = ({
   const [timerStatus, setTimerStatus] = React.useState<TimerStatus>("STOPPED");
   const [scramleIsLocked, setScrambleIsLocked] = React.useState(false);
   const [editScramble, setEditScramble] = React.useState(false);
-  const [scrambleText, setScrambleText] = React.useState(scramble);
 
   const handleStart = useCallback(() => {
     if (timerId.current) clearTimeout(timerId.current);
@@ -132,6 +132,8 @@ const Timer: React.FC<TimerProps> = ({
         onKeyDown={(e) => {
           if (e.key === "Enter") {
             e.preventDefault();
+            dispatch(setScramble(scrambleState));
+            setEditScramble(false);
           }
         }}
         className={cn(
@@ -139,7 +141,7 @@ const Timer: React.FC<TimerProps> = ({
           editScramble ? "border-2 border-yellow-500" : "",
         )}
       >
-        {scrambleText}
+        {scrambleState}
       </div>
       <div
         id="mat-time"
@@ -170,7 +172,7 @@ const Timer: React.FC<TimerProps> = ({
           onClick={() => {
             if (scrambleRef.current) {
               setEditScramble((prev) => !prev);
-              setScrambleText(scrambleRef.current.innerText);
+              dispatch(setScramble(scrambleRef.current.innerText));
               setTimeout(() => {
                 if (scrambleRef.current) scrambleRef.current.focus();
               }, 0);
@@ -197,7 +199,7 @@ const Timer: React.FC<TimerProps> = ({
           onClick={() => {
             // Copy to clipboard
             navigator.clipboard
-              .writeText(scrambleText)
+              .writeText(scrambleState)
               .then(() => {
                 console.log("copied");
               })
@@ -213,9 +215,9 @@ const Timer: React.FC<TimerProps> = ({
           variant={"ghost"}
           onClick={() => {
             // TODO: Generate new scramble
-            const newScramble = getNewScramble("3x3");
-            setScramble(newScramble);
-            setScrambleText(newScramble);
+            // const newScramble = getNewScramble("3x3");
+            dispatch(generateScramble("3x3"));
+            // setScrambleText(newScramble);
           }}
         >
           <RotateCw className="h-4 w-4" />
