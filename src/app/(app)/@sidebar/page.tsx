@@ -39,8 +39,8 @@ export default function SideBar() {
   const [active, setActive] = React.useState(false);
   const isMobile = useMediaQuery("(max-width: 640px)");
 
-  return isMobile ? (
-    <div>
+  if (isMobile) {
+    return (
       <Sheet open={active} onOpenChange={setActive}>
         <SheetTrigger>
           <Button
@@ -100,8 +100,9 @@ export default function SideBar() {
           </nav>
         </SheetContent>
       </Sheet>
-    </div>
-  ) : (
+    );
+  }
+  return (
     <aside className={cn("min-h-dvh  bg-[#0e0f18] px-3 transition-all")}>
       <div className="flex flex-col justify-between gap-5 py-8  lg:flex-row">
         <Image

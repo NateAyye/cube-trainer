@@ -2,13 +2,11 @@ import React from "react";
 
 const TESTING_TIMES = ["12.34", "15.23", "10.45", "11.23", "13.23", "14.23"];
 
-interface SessionTimesProps {
+interface SessionProps {
   times?: string[];
 }
 
-const SessionTimes: React.FC<SessionTimesProps> = ({
-  times = TESTING_TIMES,
-}) => {
+const Session: React.FC<SessionProps> = ({ times = TESTING_TIMES }) => {
   return (
     <div>
       {times.map((time, index) => (
@@ -24,4 +22,4 @@ const SessionTimes: React.FC<SessionTimesProps> = ({
   );
 };
 
-export default SessionTimes;
+export default Session;

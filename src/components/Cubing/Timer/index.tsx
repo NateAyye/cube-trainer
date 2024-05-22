@@ -3,7 +3,7 @@ import { Copy, Edit, Lock, RotateCw } from "lucide-react";
 import React, { useCallback, useEffect } from "react";
 import { Button } from "~/components/ui/button";
 import { useTimer } from "~/hooks/useTimer";
-import { cn } from "~/lib/utils";
+import { cn, getNewScramble } from "~/lib/utils";
 
 const DEFAULT_SCRAMBLE = "R U R' U'";
 const DEFAULT_TIME = 0;
@@ -13,11 +13,13 @@ type TimerStatus = "RUNNING" | "READY" | "HOLDING" | "STOPPED";
 interface TimerProps {
   scramble?: string;
   time?: number;
+  setScramble: (scramble: string) => void;
 }
 
 const Timer: React.FC<TimerProps> = ({
   scramble = DEFAULT_SCRAMBLE,
   time = DEFAULT_TIME,
+  setScramble,
 }) => {
   const { hours, minutes, seconds, miliseconds, play, pause, reset } =
     useTimer(time);
@@ -211,6 +213,9 @@ const Timer: React.FC<TimerProps> = ({
           variant={"ghost"}
           onClick={() => {
             // TODO: Generate new scramble
+            const newScramble = getNewScramble("3x3");
+            setScramble(newScramble);
+            setScrambleText(newScramble);
           }}
         >
           <RotateCw className="h-4 w-4" />
