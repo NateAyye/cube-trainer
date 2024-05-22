@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Inter as FontSans } from "next/font/google";
+import DevToolsProvider from "~/components/Providers/DevToolsProvider";
 import { cn } from "~/lib/utils";
 import "~/styles/globals.css";
-import StoreProvider from "./StoreProvider";
+import StoreProvider from "../components/Providers/StoreProvider";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -25,9 +26,13 @@ export default function RootLayout({
       lang="en"
       className={cn(" bg-background font-sans antialiased", fontSans.variable)}
     >
-      <StoreProvider>
-        <body className="relative flex min-h-dvh bg-[#12141c]">{children}</body>
-      </StoreProvider>
+      <body className="bg-[#12141c]">
+        <StoreProvider>
+          <DevToolsProvider>
+            <div className="relative flex min-h-dvh">{children}</div>
+          </DevToolsProvider>
+        </StoreProvider>
+      </body>
     </html>
   );
 }

@@ -4,7 +4,7 @@ import { ToolsDrawer } from "~/components/Cubing/ToolsDrawer";
 export default function HomePage() {
   return (
     <main className="flex flex-1 flex-col gap-2 p-2">
-      <div id="cube-mat" className="flex flex-1 items-center justify-center">
+      <div className="relative flex-1">
         <Timer />
       </div>
       <ToolsDrawer />

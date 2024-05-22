@@ -1,227 +1,171 @@
 "use client";
-import { Copy, Edit, Lock, RotateCw } from "lucide-react";
+import { Copy, LockIcon, PencilIcon, RotateCw } from "lucide-react";
 import React, { useCallback, useEffect } from "react";
 import { Button } from "~/components/ui/button";
-import { useTimer } from "~/hooks/useTimer";
-import { cn } from "~/lib/utils";
+import { useStopwatch } from "~/hooks/use-stopwatch";
+import { cn, copyToClipboard } from "~/lib/utils";
 import {
   generateScramble,
   setScramble,
 } from "~/store/features/scramble/scrambleSlice";
 import { useAppDispatch, useAppSelector } from "~/store/hooks";
 
-const DEFAULT_TIME = 0;
+type CuberStatus = "READY" | "HOLDING" | "STOPPED" | "SOLVING";
 
-type TimerStatus = "RUNNING" | "READY" | "HOLDING" | "STOPPED";
+//Holding Time (in Milliseconds)
+const HOLDING_TIME = 500;
 
-interface TimerProps {
-  time?: number;
-}
-
-const Timer: React.FC<TimerProps> = ({ time = DEFAULT_TIME }) => {
-  const scrambleState = useAppSelector((state) => state.scramble.scramble);
+const Timer: React.FC = ({}) => {
+  const scramble = useAppSelector((state) => state.scramble.scramble);
   const dispatch = useAppDispatch();
 
   const { hours, minutes, seconds, miliseconds, play, pause, reset } =
-    useTimer(time);
+    useStopwatch();
 
   const scrambleRef = React.useRef<HTMLDivElement>(null);
-
-  const timerId = React.useRef<NodeJS.Timeout>();
-  const [timerStatus, setTimerStatus] = React.useState<TimerStatus>("STOPPED");
-  const [scramleIsLocked, setScrambleIsLocked] = React.useState(false);
-  const [editScramble, setEditScramble] = React.useState(false);
+  const cubeMatRef = React.useRef<HTMLDivElement>(null);
+  const holdingTimerRef = React.useRef<NodeJS.Timeout>();
+  const [cuberStatus, setCuberStatus] = React.useState<CuberStatus>("STOPPED");
+  const [editingScramble, setEditingScramble] = React.useState(false);
+  const [scrambleIsLocked, setScrambleIsLocked] = React.useState(false);
 
   const handleStart = useCallback(() => {
-    if (timerId.current) clearTimeout(timerId.current);
-    setTimerStatus(() => "HOLDING");
+    setCuberStatus(() => "HOLDING");
     reset();
-    timerId.current = setTimeout(() => setTimerStatus(() => "READY"), 500);
+    holdingTimerRef.current = setTimeout(() => {
+      setCuberStatus(() => "READY");
+    }, HOLDING_TIME);
   }, [reset]);
 
   const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (timerStatus === "HOLDING") return;
-      if (timerStatus === "RUNNING") {
-        e.preventDefault();
+    (e: KeyboardEvent | TouchEvent) => {
+      if (e instanceof TouchEvent && e.target !== cubeMatRef.current) return;
+      if (e instanceof KeyboardEvent && cuberStatus === "SOLVING") {
+        if (!e.defaultPrevented) e.preventDefault();
         pause();
-        setTimerStatus(() => "STOPPED");
+        setCuberStatus(() => "STOPPED");
         return;
       }
-
-      // Check if the space key is pressed
-      if (e.key === " " && timerStatus === "STOPPED") {
-        if (timerId.current) clearTimeout(timerId.current);
+      if (e instanceof KeyboardEvent && e.key !== " ") return;
+      if (cuberStatus === "HOLDING") return;
+      if (cuberStatus === "STOPPED") {
+        if (!e.defaultPrevented) e.preventDefault();
         handleStart();
-        return;
       }
-      console.log("key down", e.key, timerStatus);
-    },
-    [handleStart, timerStatus, pause],
-  );
-
-  const handleKeyUp = useCallback(
-    (e: KeyboardEvent) => {
-      if (timerId.current) clearTimeout(timerId.current);
-      if (e.key === " ") {
-        if (timerStatus === "READY") {
-          play();
-          setTimerStatus(() => "RUNNING");
-        }
-        if (timerStatus === "HOLDING") {
-          setTimerStatus(() => "STOPPED");
-        }
-      }
-    },
-    [play, timerStatus],
-  );
-
-  const handleTouchStart = useCallback(
-    (e: TouchEvent) => {
-      if (!e.target) return;
-      if ((e.target as HTMLElement).id !== "cube-mat") return;
-
-      if (timerId.current) clearTimeout(timerId.current);
-
-      if (timerStatus === "RUNNING") {
+      if (cuberStatus === "SOLVING") {
+        if (!e.defaultPrevented) e.preventDefault();
         pause();
-        setTimerStatus(() => "STOPPED");
-        return;
-      } else if (timerStatus === "STOPPED") {
-        setTimerStatus(() => "HOLDING");
-        reset();
-        handleStart();
-        return;
+        setCuberStatus(() => "STOPPED");
       }
     },
-    [reset, pause, timerStatus, handleStart],
+    [cuberStatus, handleStart, pause],
   );
 
-  const handleTouchEnd = useCallback(() => {
-    if (timerId.current) clearTimeout(timerId.current);
-    if (timerStatus === "READY") {
+  const handleKeyUp = useCallback(() => {
+    if (cuberStatus === "HOLDING") {
+      clearTimeout(holdingTimerRef.current);
+      setCuberStatus(() => "STOPPED");
+    }
+    if (cuberStatus === "READY") {
       play();
-      setTimerStatus(() => "RUNNING");
-      return;
+      setCuberStatus(() => "SOLVING");
     }
-    if (timerStatus === "HOLDING") {
-      setTimerStatus(() => "STOPPED");
-      return;
-    }
-  }, [play, timerStatus]);
+  }, [cuberStatus, play]);
 
   useEffect(() => {
-    document.addEventListener("touchstart", handleTouchStart, false);
-    document.addEventListener("touchend", handleTouchEnd, false);
     document.addEventListener("keydown", handleKeyDown);
     document.addEventListener("keyup", handleKeyUp);
-
+    document.addEventListener("touchstart", handleKeyDown);
+    document.addEventListener("touchend", handleKeyUp);
     return () => {
-      document.removeEventListener("touchstart", handleTouchStart);
-      document.removeEventListener("touchend", handleTouchEnd);
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("keyup", handleKeyUp);
+      document.removeEventListener("touchstart", handleKeyDown);
+      document.removeEventListener("touchend", handleKeyUp);
     };
   });
 
   return (
-    <div className="text-primary-foreground">
-      <div
-        ref={scrambleRef}
-        contentEditable={editScramble}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            dispatch(setScramble(scrambleState));
-            setEditScramble(false);
-          }
-        }}
-        className={cn(
-          " rounded px-5 text-center text-muted2",
-          editScramble ? "border-2 border-yellow-500" : "",
-        )}
-      >
-        {scrambleState}
-      </div>
-      <div
-        id="mat-time"
-        className={cn(
-          "text-center font-sans",
-          timerStatus === "HOLDING" ? "text-red-500" : "",
-          timerStatus === "READY" ? "text-green-500" : "",
-        )}
-      >
-        {hours > 0 ? <span className="text-8xl">{hours}:</span> : <></>}
-        {minutes > 0 ? <span className="text-8xl">{minutes}:</span> : <></>}
-        <span className="text-8xl">{seconds}</span>
-        <span className="text-7xl">.</span>
-        <span className="text-6xl">
-          {miliseconds.toString().padStart(2, "0")}
-        </span>
-      </div>
-      <div
-        id="timer-toolbar"
-        className={cn("flex items-center justify-center gap-4")}
-      >
-        <Button
+    <div
+      id="cube-mat"
+      className="absolute inset-0 flex items-center justify-center p-4"
+      ref={cubeMatRef}
+    >
+      <div>
+        <div
+          ref={scrambleRef}
+          contentEditable={editingScramble}
           className={cn(
-            "toolbar-button  h-7 w-7 p-0",
-            editScramble ? "bg-accent text-accent-foreground" : "",
+            " rounded px-5 text-center text-muted2",
+            editingScramble ? "border-2 border-yellow-500" : "",
           )}
-          variant={"ghost"}
-          onClick={() => {
-            if (scrambleRef.current) {
-              setEditScramble((prev) => !prev);
-              dispatch(setScramble(scrambleRef.current.innerText));
+        >
+          {scramble}
+        </div>
+        <div
+          id="stopwatch"
+          className={cn(
+            "text-center font-mono font-semibold text-background",
+            cuberStatus === "HOLDING" ? "text-yellow-500" : "",
+            cuberStatus === "READY" ? "text-green-500" : "",
+          )}
+        >
+          {hours > 0 ? <span className="text-8xl">{hours}:</span> : <></>}
+          {minutes > 0 ? <span className="text-8xl">{minutes}:</span> : <></>}
+          <span className="text-8xl">{seconds}</span>
+          <span className="text-7xl">.</span>
+          <span className="text-6xl">
+            {miliseconds.toString().padStart(2, "0")}
+          </span>
+        </div>
+        <div className="flex items-center justify-center gap-4">
+          <Button
+            variant={"secondary"}
+            className={cn(
+              " h-8 w-8 p-0",
+              editingScramble ? "bg-secondary/80 text-red-600" : "",
+            )}
+            onClick={() => {
+              setEditingScramble((prev) => !prev);
+              dispatch(setScramble(scrambleRef.current?.innerText ?? ""));
               setTimeout(() => {
                 if (scrambleRef.current) scrambleRef.current.focus();
               }, 0);
-            }
-          }}
-        >
-          <Edit className="h-4 w-4" />
-        </Button>
-        <Button
-          className={cn(
-            "toolbar-button h-7 w-7 p-0 ",
-            scramleIsLocked ? "bg-accent text-accent-foreground" : "",
-          )}
-          variant={"ghost"}
-          onClick={() => {
-            setScrambleIsLocked((prev) => !prev);
-          }}
-        >
-          <Lock className="h-4 w-4" />
-        </Button>
-        <Button
-          className="toolbar-button h-7 w-7 p-0"
-          variant={"ghost"}
-          onClick={() => {
-            // Copy to clipboard
-            navigator.clipboard
-              .writeText(scrambleState)
-              .then(() => {
-                console.log("copied");
-              })
-              .catch(() => {
-                alert("something went wrong");
-              });
-          }}
-        >
-          <Copy className="h-4 w-4" />
-        </Button>
-        <Button
-          className="toolbar-button h-7 w-7 p-0"
-          variant={"ghost"}
-          onClick={() => {
-            // TODO: Generate new scramble
-            // const newScramble = getNewScramble("3x3");
-            dispatch(generateScramble("3x3"));
-            // setScrambleText(newScramble);
-          }}
-        >
-          <RotateCw className="h-4 w-4" />
-        </Button>
+            }}
+          >
+            <PencilIcon className={"h-5 w-5"} />
+          </Button>
+          <Button
+            variant={"secondary"}
+            className={cn(
+              " h-8 w-8 p-0",
+              scrambleIsLocked ? "bg-secondary/80 text-red-600" : "",
+            )}
+            onClick={() => {
+              setScrambleIsLocked((prev) => !prev);
+            }}
+          >
+            <LockIcon className="h-5 w-5" />
+          </Button>
+          <Button
+            variant={"secondary"}
+            className={cn(" h-8 w-8 p-0")}
+            onClick={() => copyToClipboard(scramble)}
+          >
+            <Copy className="h-5 w-5" />
+          </Button>
+          <Button
+            variant={"secondary"}
+            className={cn(" h-8 w-8 p-0")}
+            onClick={() => {
+              if (scrambleIsLocked) return;
+              if (editingScramble) return;
+              dispatch(generateScramble("3x3"));
+            }}
+          >
+            <RotateCw className="h-5 w-5" />
+          </Button>
+        </div>
       </div>
     </div>
   );

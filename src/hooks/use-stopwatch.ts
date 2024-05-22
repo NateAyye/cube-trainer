@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 
-export const useTimer = (startTime?: number) => {
+export const useStopwatch = (startTime?: number) => {
   const timerId = useRef<NodeJS.Timeout>();
 
   const [status, setStatus] = useState<"OFF" | "ON">("OFF");
