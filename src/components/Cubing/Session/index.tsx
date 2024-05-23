@@ -1,4 +1,5 @@
 import React from "react";
+import { useAppSelector } from "~/store/hooks";
 
 const TESTING_TIMES = ["12.34", "15.23", "10.45", "11.23", "13.23", "14.23"];
 
@@ -7,9 +8,10 @@ interface SessionProps {
 }
 
 const Session: React.FC<SessionProps> = ({ times = TESTING_TIMES }) => {
+  const solves = useAppSelector((state) => state.solves.solves);
   return (
     <div>
-      {times.map((time, index) => (
+      {solves.map(({ time }, index) => (
         <div
           key={index}
           className="flex items-center justify-between border-b border-gray-200 p-3"

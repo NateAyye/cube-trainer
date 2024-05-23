@@ -8,10 +8,10 @@ import {
   SelectTrigger,
 } from "~/components/ui/select";
 import { cn } from "~/lib/utils";
+import type { CubingEvent } from "~/types/cubing";
 import ScrambleDisplay from "../ScrambleDisplay";
 import Session from "../Session";
 import Stats from "../Stats";
-import type { CubingEvent } from "~/types/cubing";
 
 interface ToolsContainerProps {
   tool: string;

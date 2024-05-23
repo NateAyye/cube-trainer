@@ -1,10 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { scrambleSlice } from "./features/scramble/scrambleSlice";
+import { solvesSlice } from "./features/solves/solvesSlice";
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
       scramble: scrambleSlice.reducer,
+      solves: solvesSlice.reducer,
     },
   });
 };
